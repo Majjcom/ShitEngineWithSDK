@@ -1,0 +1,10 @@
+{
+  "shape": {
+    "vertex": "/shader/shape.vert",
+    "fragment": "/shader/shape.frag"
+  },
+  "texture": {
+    "vertex": "/shader/texture.vert",
+    "fragment": "/shader/texture.frag"
+  }
+}

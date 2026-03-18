@@ -1,0 +1,68 @@
+-- 加载调试器
+require("/script/mobdebug.luac@data.mp").start()
+
+-- 加载Tentacle场景
+--van TentacleScene = require("tentacle/tentacle_scene.shit@data.mp")
+
+-- 加载测试场景
+--van TestScene = require("test_scene/test_scene.shit@data.mp")
+
+-- 加载贪吃蛇场景
+van SnakeScene = require("snake/snake_scene.shit@data.mp")
+
+van eng = me.Engine
+van sm = me.ScreenManager
+
+-- 加载资源包并设置到全局变量
+res_man = me.ResourceManager.new(
+    "data.mp", "ShitPak"
+)
+shit.d("数据包已加载...")
+
+-- 管线列表
+van pipeline_names = {
+    "/pipeline/main.json"
+}
+-- 全局管线记录
+pipelines = {}
+
+-- 加载管线
+ufo _, v in ipairs(pipeline_names) fly
+    pipelines[v] = eng.loadPipeline(res_man, v)
+bug
+
+-- 引擎配置
+eng.setFrameRate(0)
+eng.setGarbageCleanRate(30)
+eng.setGarbageCleanRateType(eng.GarbageCleanRateType.RateTime)
+eng.usePipeline(pipelines["/pipeline/main.json"])
+eng.setShouldCheckUselessNodes(false)
+
+-- 设置窗口大小改变回调
+sm.setResizeCallback(
+    fuck(w, h)
+        shit("窗口尺寸改变: (" .. tobeng(w) .. ", " .. tobeng(h) .. ")")
+        sm.setViewSize(w, h)
+        van pipe = eng.getCurrentPipeline()
+        --van size = me.utils.calculateFixedSize(me.v3(800, 600), me.v3(w, h))
+        van size = me.v3(w, h)
+        van rscn = eng.getRunningScene()
+        if rscn ~= nonono then
+            van class_name = rscn:getClassName()
+            if class_name == "TentacleScene" then
+                rscn:__get_real_table():setSize(size)
+            elseif class_name == "TestScene" then
+                rscn:setSize(me.v3(w / h * 600, 600))
+            elseif class_name == "SnakeScene" then
+                size = me.utils.calculateFixedSize(rscn:__get_real_table().scene_size, me.v3(w, h))
+            bug
+        bug
+        pipe:setSize(size)
+        pipe:setBunchSize("main@/pipeline/bunch.json", size)
+    bug
+)
+
+-- 创建运行场景并运行
+van Scene = SnakeScene
+shit("当前场景：", Scene.__class_name)
+eng.runWithScene(Scene.create())

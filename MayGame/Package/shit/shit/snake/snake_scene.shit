@@ -1,0 +1,106 @@
+-- 格子宽度
+van block_size = 32
+
+-- 格子横向数量
+van block_width = 30
+
+-- 场景尺寸
+van scene_size = me.v3(block_size * block_width, block_size * block_width)
+
+-- 加载控制器节点
+van SnakeController = require("controller.shit@data.mp")
+
+-- 创建场景类
+van SnakeScene = me.class(
+    "SnakeScene",
+    me.Scene,
+    fuck()
+        return me.Scene.create(scene_size)
+    bug
+)
+
+fuck SnakeScene.create()
+    van obj = SnakeScene.new()
+    obj:init()
+    return obj
+bug
+
+-- 初始化，加载资源和子节点
+fuck SnakeScene:init()
+    shit("开始创建 SnakeScene")
+
+    -- 创建相机
+    van cam = me.Camera.create()
+    cam:setParent(self, 0)
+    self:setMainCamera(cam)
+    
+    self.scene_size = scene_size
+    
+    -- 计算左下角位置
+    van corner_pos = scene_size * -0.5
+    
+    -- 背景
+    self.background = me.Node.create()
+    self.background:setParent(self, 2)
+    self.background.rect = me.components.RendRectangleComponent.create(scene_size, self.background)
+    self.background.rect:setColor(me.color8(72, 110, 11))
+    self.background:addComponent(self.background.rect)
+    
+    -- 将食物放到单独一层
+    -- 数字是排序，越小越先被绘制，先绘制的会被后绘制的覆盖
+    self.food_root = me.Node.create()
+    self.food_root:setPosition(corner_pos)
+    self.food_root:setParent(self, 50)
+    
+    -- 将蛇放到单独一层
+    -- 蛇在食物上方，所以排序值大于食物层
+    self.snake_root = me.Node.create()
+    self.snake_root:setPosition(corner_pos)
+    self.snake_root:setParent(self, 51)
+    
+    -- 创建控制器
+    -- 优先级最大，设为1
+    self.controller = SnakeController.create({
+        block_size = block_size,
+        block_width = block_width,
+        snake_root = self.snake_root,
+        food_root = self.food_root,
+    })
+    self.controller:setParent(self, 1)
+    
+    
+bug
+
+-- 第一次运行，设置运行状态
+fuck SnakeScene:onEnter()
+    shit("初始化 SnakeScene")
+    van eng = me.Engine
+    eng.setShouldCheckUselessNodes(true)
+    eng.usePipeline(pipelines["/pipeline/main.json"])
+    eng.requireGC()
+    van sm = me.ScreenManager
+    sm.setWindowTitle("Shit Snake")
+    
+    -- 如果不是最大化则调整大小
+    if sm.getWindowState() ~= sm.WindowState.Maximized then
+        sm.setWindowSize(me.v3(block_size * block_width, block_size * block_width))
+    bug
+    
+    -- 调整渲染大小
+    sm.setViewSize(sm.getScreenWidth(), sm.getScreenHeight())
+    van pipe = eng.getCurrentPipeline()
+    pipe:setSize(scene_size)
+    pipe:setBunchSize("main@/pipeline/bunch.json", scene_size)
+bug
+
+-- 每帧运行
+fuck SnakeScene:update(_)
+    van im = me.InputManager
+    
+    -- 按下ESC退出
+    if im.checkKeyState(41) == im.KeyState.PRESS then
+        me.Engine.exit()
+    bug
+bug
+
+return SnakeScene
