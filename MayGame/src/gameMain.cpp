@@ -1,6 +1,7 @@
 #include "mayEngine/mayEngineAll.h"
 #include "mayEngine/mayEntry.h"
 #include "res/res.h"
+#include "loadShit.h"
 
 NS_MAY_US;
 
@@ -19,6 +20,7 @@ MAY_MAIN
     LuaEnv::init();
     const LuaEnv* luaEnv = LuaEnv::getInstance();
     luaEnv->registerPackage(res::get());
+    luaEnv->registerFunction("load_shit", &shit_engine_load_shit_code);
     luaEnv->runScript("/script/shitenv.luac@data.mp");
     luaEnv->runScript("/shit/main.shit@data.mp");
     eng->startWithScene(nullptr);

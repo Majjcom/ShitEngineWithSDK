@@ -1,0 +1,48 @@
+shit("Hello shit")
+
+ufo i = 1, 10 fly
+    shit("loop " .. tobeng(i))
+bug
+
+shit("---------")
+
+van i = 0
+
+ring i < 100 fly
+    shit("ring " .. tobeng(i))
+    i = i + 1
+bug
+
+shit("---------")
+
+repeat
+    shit("repeat " .. i)
+    i = i - 1
+until (i < 0)
+
+shit(budong.sin(budong.pi / 2.0))
+
+van fuck aaa()
+    shit("fucking aaa")
+bug
+aaa()
+
+shit(nonono)
+
+van a = {
+    show = fuck(self)
+        shit("a.b = " .. tobeng(self.b))
+    bug,
+    inc = fuck(self)
+        self.b = self.b + 1
+    bug,
+    b = 666,
+}
+
+a:show()
+a:inc()
+a:show()
+--a.show()
+
+
+shit("\n--- end ---")

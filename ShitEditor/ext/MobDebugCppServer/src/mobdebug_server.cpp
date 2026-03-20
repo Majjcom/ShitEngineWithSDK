@@ -818,6 +818,36 @@ namespace MobDebugCpp
         session_->enqueue(std::move(e));
     }
 
+    // ── seval ─────────────────────────────────────────────────────────────────
+    void MobDebugServer::seval(const std::string& expr, EvalCallback cb)
+    {
+        if (!session_ || state_ != DebuggerState::Paused)
+        {
+            if (cb) cb(false, "not paused");
+            return;
+        }
+        CommandEntry e;
+        e.kind = CommandEntry::Kind::Eval;
+        e.raw_cmd = "SEXEC return(" + expr + ")";
+        e.eval_cb = std::move(cb);
+        session_->enqueue(std::move(e));
+    }
+
+    // ── sexec ─────────────────────────────────────────────────────────────────
+    void MobDebugServer::sexec(const std::string& expr, EvalCallback cb)
+    {
+        if (!session_ || state_ != DebuggerState::Paused)
+        {
+            if (cb) cb(false, "not paused");
+            return;
+        }
+        CommandEntry e;
+        e.kind = CommandEntry::Kind::Exec;
+        e.raw_cmd = "SEXEC " + expr;
+        e.eval_cb = std::move(cb);
+        session_->enqueue(std::move(e));
+    }
+
     // ── get_stack ─────────────────────────────────────────────────────────────
     void MobDebugServer::get_stack(StackCallback cb)
     {

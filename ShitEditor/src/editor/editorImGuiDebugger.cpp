@@ -2,6 +2,7 @@
 
 #include "ext/TextEditor.h"
 #include "editorImGui.h"
+#include <mayEngine/system/IO/mayClipboard.h>
 #include <mayEngine/tools/imgui/imgui.h>
 #include <mayEngine/tools/imgui/imgui_stdlib.h>
 
@@ -547,7 +548,7 @@ void EditorImGuiComponent::render_debugger()
             {
                 ImGui::BeginDisabled(!debugger_connected);
                 static mstring buffer;
-                ImGui::Text("输入MELua代码表达式进行代码注入：");
+                ImGui::Text("输入ShitLang代码表达式进行代码注入：");
                 ImGui::SetNextItemWidth(-FLT_MIN);
                 ImGui::InputTextWithHint("##expr", "表达式", &buffer);
                 ImGui::Separator();
@@ -555,7 +556,7 @@ void EditorImGuiComponent::render_debugger()
                 {
                     if (buffer[0] != '\0')
                     {
-                        debug_server->eval(std::string(buffer), [this](const bool ok, const std::string& result)
+                        debug_server->seval(std::string(buffer), [this](const bool ok, const std::string& result)
                         {
                             if (!ok)
                             {
@@ -572,7 +573,7 @@ void EditorImGuiComponent::render_debugger()
                 {
                     if (buffer[0] != '\0')
                     {
-                        debug_server->exec(std::string(buffer), [this](const bool ok, const std::string& result)
+                        debug_server->sexec(std::string(buffer), [this](const bool ok, const std::string& result)
                         {
                             if (!ok)
                             {
@@ -583,14 +584,28 @@ void EditorImGuiComponent::render_debugger()
                         });
                     }
                 }
+                ImGui::SameLine();
+                if (ImGui::SmallButton("清除结果"))
+                {
+                    debugger_code_inject_result.clear();
+                }
                 ImGui::Separator();
                 ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyle().Colors[ImGuiCol_FrameBg]);
                 if (ImGui::BeginChild("##Result", { -FLT_MIN, -FLT_MIN },
                                       ImGuiChildFlags_Borders))
                 {
                     ImGui::TextWrapped("%s", debugger_code_inject_result.c_str());
+                    if (ImGui::BeginPopupContextWindow(nullptr, ImGuiPopupFlags_MouseButtonRight))
+                    {
+                        if (ImGui::MenuItem("复制"))
+                        {
+                            IO::Clipboard::setClipboardText(debugger_code_inject_result);
+                        }
+                        ImGui::EndPopup();
+                    }
                 }
                 ImGui::EndChild();
+
                 ImGui::PopStyleColor();
                 ImGui::EndDisabled();
                 ImGui::EndTabItem();
@@ -609,7 +624,7 @@ void EditorImGuiComponent::add_watch(const mstring& expr)
     auto& ref = debugger_watch_list.emplace_back(expr, mstring()).second;
     if (debugger_paused)
     {
-        debug_server->eval(std::string(expr), [this, &ref](const bool ok, const std::string& result)
+        debug_server->seval(std::string(expr), [this, &ref](const bool ok, const std::string& result)
         {
             if (!ok)
             {
@@ -630,7 +645,7 @@ void EditorImGuiComponent::load_watches()
 {
     for (auto& watch : debugger_watch_list)
     {
-        debug_server->eval(
+        debug_server->seval(
             std::string(watch.first),
             [this, &ref = watch.second](const bool ok, const std::string& result)
             {

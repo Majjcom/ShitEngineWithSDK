@@ -21,6 +21,9 @@ enum class MayValueType
 
     /// 布尔
     Bool,
+
+    /// 二进制
+    Binary,
 };
 
 /**
@@ -50,7 +53,7 @@ public:
         double value_number_floating;
 
         /// 64位整数值
-        int64_t value_number_integer;
+        int64_t value_number_integer = 0;
     } value_number;
 
     /// 数字是否为整数
@@ -61,12 +64,19 @@ public:
      */
     bool value_bool{ false };
 
+    /**
+     * 二进制数据
+     */
+    mvector<uint8_t> value_binary;
+
     static MayValue null();
     static MayValue number(double num);
     static MayValue number(int num);
     static MayValue number(int64_t num);
     static MayValue boolean(bool boolean);
     static MayValue string(const mstring& str);
+    static MayValue binary(const void* data, size_t size);
+    static MayValue binary(const mvector<uint8_t>& data);
 };
 
 NS_MAY_END

@@ -846,6 +846,39 @@ local function debugger_loop(sev, svars, sfile, sline)
       else
         server:send("400 Bad Request\n")
       end
+    elseif command == "SEXEC" then
+      -- extract any optional parameters
+      local params = string.match(line, "--%s*(%b{})%s*$")
+      local _, _, chunk = string.find(line, "^[A-Z]+%s+(.+)$")
+      if chunk then
+        -- \r is optional, as it may be stripped by some luasocket versions, like the one in LOVE2d
+        chunk = chunk:gsub("\r?"..SAFEWS, "\n") -- convert safe whitespace back to new line
+        local func, res = load_shit(chunk)
+        local status
+        if func then
+          local pfunc = params and load_shit("return "..params) -- use internal function
+          params = pfunc and pfunc()
+          params = (type(params) == "table" and params or {})
+          local stack = tonumber(params.stack)
+          -- if the requested stack frame is not the current one, then use a new capture
+          -- with a specific stack frame: `capture_vars(0, coro_debugee)`
+          local env = stack and coro_debugee and capture_vars(stack-1, coro_debugee) or eval_env
+          setfenv(func, env)
+          status, res = stringify_results(params, pcall(func, unpack(rawget(env,'...') or {})))
+        end
+        if status then
+          if mobdebug.onscratch then mobdebug.onscratch(res) end
+          server:send("200 OK " .. tostring(#res) .. "\n")
+          server:send(res)
+        else
+          -- fix error if not set (for example, when load_shit is not present)
+          if not res then res = "Unknown error" end
+          server:send("401 Error in Expression " .. tostring(#res) .. "\n")
+          server:send(res)
+        end
+      else
+        server:send("400 Bad Request\n")
+      end
     elseif command == "LOAD" then
       local _, _, size, name = string.find(line, "^[A-Z]+%s+(%d+)%s+(%S.-)%s*$")
       size = tonumber(size)

@@ -70,6 +70,8 @@ namespace MobDebugCpp
 
         void eval(const std::string& expr, EvalCallback cb);
         void exec(const std::string& expr, EvalCallback cb);
+        void seval(const std::string& expr, EvalCallback cb);
+        void sexec(const std::string& expr, EvalCallback cb);
         void get_stack(StackCallback cb);
 
         DebuggerState state() const;

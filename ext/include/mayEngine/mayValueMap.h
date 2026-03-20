@@ -36,6 +36,7 @@ public:
     void set_value(const mstring& key, int value);
     void set_value(const mstring& key, int64_t value);
     void set_value(const mstring& key, bool value);
+    void set_value(const mstring& key, const mvector<uint8_t>& data);
     void set_value(const mstring& key, const MayValue& value);
     void set_value(const mstring& key, const MayValueMap& value_map);
     void set_value(const mstring& key, const mvector<MappingValue>& value_list);

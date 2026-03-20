@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.17)
 
 project(MayGame)
 
+add_subdirectory(ext/ShitLang)
+
 if (WIN32 OR (UNIX AND NOT ANDROID))
     add_subdirectory(Package)
 endif ()
@@ -24,11 +26,12 @@ set_target_properties(MayGame PROPERTIES OUTPUT_NAME "ShitGame")
 
 target_link_libraries(
         MayGame PRIVATE
-        MayEngine
+        MayEngine libShitLang
 )
 
 target_include_directories(
         MayGame PRIVATE
+        ext/ShitLang/lua
         ${CMAKE_SOURCE_DIR}/ext/include
 )
 target_link_directories(
