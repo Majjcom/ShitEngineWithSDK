@@ -712,7 +712,7 @@ void EditorImGuiComponent::editor_popups()
     if (ImGui::BeginPopupModal("关于 ShitEditor", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove))
     {
-        ImGui::Text("ShitEditor v1.0.0");
+        ImGui::Text("ShitEditor v1.1.0");
         ImGui::Text("Copyright (c) 2026 Majjcom");
         ImGui::Separator();
         if (ImGui::CollapsingHeader("LICENSE"))
