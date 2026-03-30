@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "../../mayComponent.h"
 #include "../../mayVec3.h"

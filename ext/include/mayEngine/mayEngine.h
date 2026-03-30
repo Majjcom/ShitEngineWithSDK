@@ -1,4 +1,4 @@
-﻿/*****************************************************************//**
+/*****************************************************************//**
  * @file    mayEngine.h
  * @brief   封装了引擎类
  * 
@@ -15,8 +15,9 @@
 #include "mayArray.h"
 #include "memory/mayMemory.h"
 
-NS_MAY_BEGIN
-    class Scene;
+NS_MAY_BEGIN;
+
+class Scene;
 class Ref;
 
 /**
@@ -296,6 +297,7 @@ private:
     bool ignore_dt = false;
     bool required_gc = false;
     //Pipe
+    typedef mmap<int, Graphic::Pipeline*>  PipeMap;
     int pipe_id_max = 0;
     PipeMap pipe_map;
     std::mutex preObjectPoolMutex;

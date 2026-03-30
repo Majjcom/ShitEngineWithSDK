@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "../mayStlDefine.h"
 #include "../physics/mayPhysicsDefine.h"

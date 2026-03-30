@@ -1,4 +1,4 @@
-﻿/*****************************************************************//**
+/*****************************************************************//**
  * @file   mayRef.h
  * @brief  Ref 对象基类封装
  * 
@@ -26,7 +26,7 @@ public:                                             \
 /// Get class name n
 #define M_GET_CLASS_NAME_N(C)                       \
 public:                                             \
-    virtual const MayEngine::mstring getClassName() \
+    virtual const char* getClassName() \
     {                                               \
         return #C;                                  \
     }

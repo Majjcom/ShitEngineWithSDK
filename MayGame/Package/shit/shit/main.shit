@@ -1,5 +1,5 @@
 -- 加载调试器
-require("/script/mobdebug.luac@data.mp").start()
+--require("/script/mobdebug.luac@data.mp").start()
 
 -- 加载Tentacle场景
 --van TentacleScene = require("tentacle/tentacle_scene.shit@data.mp")

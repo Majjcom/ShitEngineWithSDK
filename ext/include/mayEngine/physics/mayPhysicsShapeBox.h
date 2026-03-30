@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "mayPhyiscsShapeBase.h"
 #include "../mayVec3.h"

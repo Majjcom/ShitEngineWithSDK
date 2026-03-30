@@ -1,4 +1,4 @@
-﻿/*****************************************************************//**
+/*****************************************************************//**
  * @file   mayRectAngleComponent.h
  * @brief  对形状渲染组件的封装
  * 
@@ -27,6 +27,7 @@ class MAY_DLL RendRectangleComponent
     : public Component
     , public RendShaderBase
     , public RendPipelineConfig
+    , public RendZIndexBase
     , public RendComponentColorBase
     , public RendComponentAlphaBase
     , public RendLineModeBase

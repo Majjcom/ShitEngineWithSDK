@@ -44,8 +44,29 @@ void EditorImGuiComponent::draw_explorer_node(const ExplorerNode* node)
         ImGui::SetTooltip("%s", p.c_str());
     }
 
+    static const char* editable_ext[] = {
+        ".shit",
+        ".json",
+        ".txt",
+        ".key",
+        ".vert",
+        ".frag",
+        ".comp",
+        ".glsl",
+        ".lua",
+    };
+
+    bool is_editable = false;
+    for (const char* ext : editable_ext)
+    {
+        if (fs::path(node->path).extension() == ext)
+        {
+            is_editable = true;
+        }
+    }
+
     // 点击选择
-    if (ImGui::IsItemClicked() && node->type == ExplorerNode::File)
+    if (ImGui::IsItemClicked() && node->type == ExplorerNode::File && is_editable)
     {
         if (explorer_select_path != node->path)
         {
@@ -155,26 +176,17 @@ void EditorImGuiComponent::flush_explorer()
                 continue;
             }
 
-            constexpr const char* ext_list[] = {
-                ".shit",
-                ".json",
-                ".txt",
-                ".key",
-                ".vert",
-                ".frag",
-                ".comp",
-                ".glsl",
-                ".lua",
-                ".luac"
+            constexpr const char* filter_ext_list[] = {
+                ".exe",
             };
 
             // File
-            bool filterd = true;
-            for (auto ext : ext_list)
+            bool filterd = false;
+            for (auto ext : filter_ext_list)
             {
                 if (entry.path().extension() == ext)
                 {
-                    filterd = false;
+                    filterd = true;
                     break;
                 }
             }

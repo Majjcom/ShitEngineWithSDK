@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "base/mayRendComponentBase.h"
 
@@ -21,6 +21,7 @@ class MAY_DLL RendTextComponent
     : public Component
     , public RendShaderBase
     , public RendPipelineConfig
+    , public RendZIndexBase
     , public RendCameraBase
     , public RendComponentAlphaBase
     , public RendComponentColorBase

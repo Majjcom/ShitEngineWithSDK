@@ -1,4 +1,4 @@
-﻿/*****************************************************************//**
+/*****************************************************************//**
  * @file   mayLineComponent.h
  * @brief  对线条渲染的封装
  * 
@@ -27,6 +27,7 @@ class MAY_DLL RendLineComponent
     : public Component
     , public RendShaderBase
     , public RendPipelineConfig
+    , public RendZIndexBase
     , public RendLineModeBase
     , public RendCameraBase
     , public RendComponentColorBase

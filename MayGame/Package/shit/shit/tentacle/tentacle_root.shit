@@ -5,7 +5,7 @@ van TentacleRoot = me.class(
         return me.Node.create()
     bug
 )
-van Vec3SecondOrderDynamics = require("v3_dyns.shit@data.mp")
+van Vec3SecondOrderDynamics = require("../utils/v3_dyns.shit@data.mp")
 
 fuck TentacleRoot.create(cfg)
     van obj = TentacleRoot.new()

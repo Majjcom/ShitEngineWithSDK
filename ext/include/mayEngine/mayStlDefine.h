@@ -45,6 +45,9 @@ using munordered_set = std::unordered_set<Kty, std::hash<Kty>, std::equal_to<Kty
 template<typename Ty>
 using mlist = std::list<Ty, mi_stl_allocator<Ty>>;
 
+template<typename Ty, size_t Size>
+using marray = std::array<Ty, Size>;
+
 template<typename T>
 using mdeque = std::deque<T, mi_stl_allocator<T>>;
 

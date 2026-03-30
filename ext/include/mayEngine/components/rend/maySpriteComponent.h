@@ -1,4 +1,4 @@
-﻿/*****************************************************************/ /**
+/*****************************************************************/ /**
  * \file   maySpriteComponent.h
  * \brief  对贴图渲染组件的封装
  *
@@ -29,6 +29,7 @@ class MAY_DLL RendSpriteComponent
     : public Component
     , public RendShaderBase
     , public RendPipelineConfig
+    , public RendZIndexBase
     , public RendCameraBase
     , public RendComponentColorBase
     , public RendComponentAlphaBase

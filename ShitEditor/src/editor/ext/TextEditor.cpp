@@ -2518,6 +2518,8 @@ void TextEditor::EnsureCursorVisible()
 		return;
 	}
 
+	FlushStartTime();
+
 	float scrollX = ImGui::GetScrollX();
 	float scrollY = ImGui::GetScrollY();
 

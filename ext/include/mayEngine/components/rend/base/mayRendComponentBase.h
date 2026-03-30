@@ -1,4 +1,4 @@
-﻿/*****************************************************************//**
+/*****************************************************************//**
  * \file   mayRendComponentBase.h
  * \brief  对渲染组件的基本封装
  *
@@ -279,6 +279,16 @@ public:
 
 private:
     Graphic::Shader* shader = nullptr;
+};
+
+class MAY_DLL RendZIndexBase
+{
+public:
+    void setZIndex(int value);
+    int getZIndex() const;
+
+protected:
+    int z_index = 0;
 };
 
 NS_MAY_END

@@ -47,6 +47,8 @@ public:
     bool getBlend() const;
     void setRenderType(RenderType type);
     RenderType getRenderType() const;
+    void setZIndex(int value);
+    int getZIndex() const;
 
 protected:
     ShaderType task_type;
@@ -54,9 +56,9 @@ protected:
     me_unique_ptr<RenderMeshDataLayout> _layout;
 
 private:
-
     int bunch_id = -1;
     int side_id = -1;
+    int z_index = 0;
     RenderType render_type = RenderType::RDNormal;
     Shader* shader = nullptr;
     bool blend = false;

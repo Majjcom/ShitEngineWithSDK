@@ -10,6 +10,9 @@ van scene_size = me.v3(block_size * block_width, block_size * block_width)
 -- 加载控制器节点
 van SnakeController = require("controller.shit@data.mp")
 
+-- 文本渲染节点
+van ScoreNode = require("score_node.shit@data.mp")
+
 -- 创建场景类
 van SnakeScene = me.class(
     "SnakeScene",
@@ -19,8 +22,9 @@ van SnakeScene = me.class(
     bug
 )
 
-fuck SnakeScene.create()
+fuck SnakeScene.create(cfg)
     van obj = SnakeScene.new()
+    obj.cfg = cfg and cfg or {}
     obj:init()
     return obj
 bug
@@ -35,6 +39,12 @@ fuck SnakeScene:init()
     self:setMainCamera(cam)
     
     self.scene_size = scene_size
+    
+    if self.cfg.text_render == nonono then
+        mlog("正在加载字体渲染器...")
+        self.cfg.text_render = me.MayText.new(res_man, "/font/zpix.ttf")
+        mlog("字体渲染器加载完成...")
+    bug
     
     -- 计算左下角位置
     van corner_pos = scene_size * -0.5
@@ -58,17 +68,26 @@ fuck SnakeScene:init()
     self.snake_root:setPosition(corner_pos)
     self.snake_root:setParent(self, 51)
     
+    -- 创建文本渲染节点
+    -- 在最上层渲染
+    self.score_node = ScoreNode.create{
+        text_render = self.cfg.text_render
+    }
+    self.score_node:setParent(self, 100)
+    self.score_node:setPositionY(scene_size:gety() / 2)
+    self.score_node:setAnchor(me.v3(0.5, 1.0))
+    
     -- 创建控制器
     -- 优先级最大，设为1
-    self.controller = SnakeController.create({
+    self.controller = SnakeController.create{
         block_size = block_size,
         block_width = block_width,
         snake_root = self.snake_root,
         food_root = self.food_root,
-    })
+        score_node = self.score_node,
+        scene_cfg = self.cfg,
+    }
     self.controller:setParent(self, 1)
-    
-    
 bug
 
 -- 第一次运行，设置运行状态
