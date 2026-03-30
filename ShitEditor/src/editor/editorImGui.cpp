@@ -437,6 +437,17 @@ void EditorImGuiComponent::update_editor_content()
     {
         editor->SetText("");
         editor->SetLanguageDefinition(defaultDef);
+
+        // remove line remember
+        if (!editor_opened_path.empty())
+        {
+            const auto found = remember_editing_lines.find(editor_opened_path);
+            if (found != remember_editing_lines.end())
+            {
+                remember_editing_lines.erase(found);
+            }
+        }
+
         editor_opened_path.clear();
         return;
     }
@@ -444,6 +455,12 @@ void EditorImGuiComponent::update_editor_content()
     if (editor_opened_path == explorer_select_path)
     {
         return;
+    }
+
+    if (!editor_opened_path.empty())
+    {
+        const int current_line = editor->GetCursorPosition().mLine;
+        remember_editing_lines.insert_or_assign(editor_opened_path, current_line);
     }
 
     editor_opened_path = explorer_select_path;
@@ -473,14 +490,29 @@ void EditorImGuiComponent::update_editor_content()
     std::fclose(fp);
 
     // Breakpoints
-    const auto found_file = breakpoints.find(explorer_select_path);
-    if (found_file != breakpoints.end())
     {
-        editor->SetBreakpoints(found_file->second);
+        const auto found_file = breakpoints.find(explorer_select_path);
+        if (found_file != breakpoints.end())
+        {
+            editor->SetBreakpoints(found_file->second);
+        }
+        else
+        {
+            editor->SetBreakpoints({});
+        }
     }
-    else
+
+    // remember line
     {
-        editor->SetBreakpoints({});
+        const auto found = remember_editing_lines.find(explorer_select_path);
+        if (found != remember_editing_lines.end())
+        {
+            editor->SetCursorPosition(TextEditor::Coordinates(found->second, 0));
+        }
+        else
+        {
+            editor->SetCursorPosition(TextEditor::Coordinates());
+        }
     }
 }
 
