@@ -1,0 +1,63 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  build-and-release:
+    runs-on: windows-2022
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v5
+
+      - name: Download and extract boost-cmake
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/boostorg/boost/releases/download/boost-1.90.0/boost-1.90.0-cmake.zip" -OutFile "boost-1.90.0-cmake.zip"
+          Expand-Archive -Path "boost-1.90.0-cmake.zip" -DestinationPath "ext"
+          Rename-Item -Path "ext/boost-1.90.0" -NewName "boost"
+        shell: pwsh
+
+      - name: Configure CMake (Release)
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build targets
+        run: |
+          cmake --build build --target ShitEditor SEPackage MayGame
+
+      - name: Delete intermediate and debug files
+        run: |
+          Get-ChildItem -Path build/bin -Include *.pdb,*.lib,*.exp -Recurse -File | Remove-Item -Force
+          Remove-Item -Path build/bin/data.mp -Force -ErrorAction SilentlyContinue
+          Remove-Item -Path build/bin/Package/res/shit -Recurse -Force -ErrorAction SilentlyContinue
+        shell: pwsh
+
+      - name: Package build output as 7z
+        run: |
+          7z a -t7z -mx=9 ShitEngineWithSDK-${{ github.event.inputs.tag }}.7z ./build/bin/*
+        shell: pwsh
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          name: ${{ github.event.inputs.tag }}
+          files: ShitEngineWithSDK-binary-${{ github.event.inputs.tag }}.7z
+          draft: false
+          prerelease: false
