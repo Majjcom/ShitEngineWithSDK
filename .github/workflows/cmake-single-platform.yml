@@ -9,10 +9,8 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-release:
+  build-test:
     runs-on: windows-2022
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout repository
