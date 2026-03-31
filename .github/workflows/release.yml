@@ -37,6 +37,8 @@ jobs:
       - name: Delete intermediate and debug files
         run: |
           Get-ChildItem -Path build/bin -Include *.pdb,*.lib,*.exp -Recurse -File | Remove-Item -Force
+          Remove-Item -Path build/bin/data.mp -Force -ErrorAction SilentlyContinue
+          Remove-Item -Path build/bin/Package/shit -Recurse -Force -ErrorAction SilentlyContinue
         shell: pwsh
 
       - name: Package build output as 7z
