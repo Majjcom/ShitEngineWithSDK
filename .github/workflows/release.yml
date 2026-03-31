@@ -45,7 +45,7 @@ jobs:
         run: |
           Get-ChildItem -Path build/bin -Include *.pdb,*.lib,*.exp -Recurse -File | Remove-Item -Force
           Remove-Item -Path build/bin/data.mp -Force -ErrorAction SilentlyContinue
-          Remove-Item -Path build/bin/Package/shit -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item -Path build/bin/Package/res/shit -Recurse -Force -ErrorAction SilentlyContinue
         shell: pwsh
 
       - name: Package build output as 7z
@@ -57,7 +57,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.tag }}
-          name: Release ${{ github.event.inputs.tag }}
-          files: ShitEngineWithSDK-${{ github.event.inputs.tag }}.7z
+          name: ${{ github.event.inputs.tag }}
+          files: ShitEngineWithSDK-binary-${{ github.event.inputs.tag }}.7z
           draft: false
           prerelease: false
