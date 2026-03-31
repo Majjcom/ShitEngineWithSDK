@@ -38,7 +38,3 @@ jobs:
       - name: Build targets
         run: |
           cmake --build build --target ShitEditor SEPackage MayGame
-
-      # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --target MayGame --config ${{env.BUILD_TYPE}}
-
