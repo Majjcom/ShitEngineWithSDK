@@ -28,8 +28,8 @@ jobs:
 
       - name: Download and extract boost-cmake
         run: |
-          Invoke-WebRequest -Uri "https://github.com/boostorg/boost/releases/download/boost-1.90.0/boost-1.90.0-cmake.tar.xz" -OutFile "boost-1.90.0-cmake.tar.xz"
-          tar -xf "boost-1.90.0-cmake.tar.xz" -C "ext"
+          Invoke-WebRequest -Uri "https://github.com/boostorg/boost/releases/download/boost-1.90.0/boost-1.90.0-cmake.zip" -OutFile "boost-1.90.0-cmake.zip"
+          Expand-Archive -Path "boost-1.90.0-cmake.zip" -DestinationPath "ext"
           Rename-Item -Path "ext/boost-1.90.0" -NewName "boost"
         shell: pwsh
 
