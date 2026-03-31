@@ -26,6 +26,13 @@ jobs:
       - name: Install Ninja
         uses: seanmiddleditch/gha-setup-ninja@v5
 
+      - name: Download and extract boost-cmake
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/Orphis/boost-cmake/archive/refs/tags/1.90.0.zip" -OutFile "boost-cmake-1.90.0.zip"
+          Expand-Archive -Path "boost-cmake-1.90.0.zip" -DestinationPath "ext"
+          Rename-Item -Path "ext/boost-cmake-1.90.0" -NewName "boost"
+        shell: pwsh
+
       - name: Configure CMake (Release)
         run: |
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
