@@ -66,6 +66,7 @@ namespace ShitEditor
         std::atomic_bool process_running = false;
         bool show_style_editor = false;
         bool editor_packaging_popup = false;
+        munordered_map<mstring, int> remember_editing_lines;
 
         // Debugger
         std::unordered_map<mstring, std::unordered_set<int>> breakpoints;

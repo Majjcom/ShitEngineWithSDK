@@ -1,0 +1,40 @@
+# This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
+name: CMake Test Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-test:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v5
+
+      - name: Download and extract boost-cmake
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/boostorg/boost/releases/download/boost-1.90.0/boost-1.90.0-cmake.zip" -OutFile "boost-1.90.0-cmake.zip"
+          Expand-Archive -Path "boost-1.90.0-cmake.zip" -DestinationPath "ext"
+          Rename-Item -Path "ext/boost-1.90.0" -NewName "boost"
+        shell: pwsh
+
+      - name: Configure CMake (Release)
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build targets
+        run: |
+          cmake --build build --target ShitEditor SEPackage MayGame
