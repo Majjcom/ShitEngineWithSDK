@@ -1,4 +1,4 @@
-# Lua映射列表
+# ShitLang映射列表
 
 ## Vec3
 
@@ -61,6 +61,12 @@
   - WARNING
   - ERROR
 - showMessageBox(type: MessageBoxType(integer), title: string, message: string)
+- showAskMessageBox(title: string, message: string[, accept: string[, reject: string]]) -> boolean
+- WindowState
+  - Minimized
+  - Maximized
+  - Normal
+- getWindowState() -> WindowState(integer)
 - getDesktopRect(id: integer) -> width: integer, height: integer
 
 
@@ -70,13 +76,15 @@
 - checkKeyState(key: integer) -> KeyState
 - getCursorPos() -> Vec3
 - checkMouseButton(mouse: integer) -> KeyState
-- getTouchFingers() -> { }
-- .KeyState.RELEASE = 0
-- .KeyState.PRESS = 1
-- .KeyState.REPEAT = 2
-- .MouseButton.LEFT = 0
-- .MouseButton.RIGHT = 1
-- .MouseButton.MIDDLE = 2
+- getTouchFingers() -> { { ... }, ... }
+- KeyState
+  - RELEASE = 0
+  - PRESS = 1
+  - REPEAT = 2
+- MouseButton
+  - LEFT = 0
+  - RIGHT = 1
+  - MIDDLE = 2
 
 
 
@@ -88,7 +96,7 @@
 - :getResourceSize(path: string) -> integer
 - :getLoadError() -> boolean
 - :getPath() -> string
-- :getAllResourcesLocation() -> [string]
+- :getAllResourcesLocation() -> { string, ... }
 
 
 
@@ -121,7 +129,7 @@
 - usePipeline(id: integer)
 - getPipeline(id: integer) -> Pipeline
 - getCurrentPipeline() -> Pipeline
-- getClassesInPool() -> { string }
+- getClassesInPool() -> { string, ... }
 - exit()
 
 
@@ -244,7 +252,7 @@
 - :addComponent(component: Component) -> integer
 - :addComponentQueued(component: Component) -> integer
 - :getComponent(id: integer) -> Component
-- :getComponents() -> { Component }
+- :getComponents() -> { Component, ... }
 - :transformToWorldPoint(p: Vec3) -> Vec3
 - :transformToWorldRotation(r: Vec3) -> Vec3
 - :\_\_get_table_index() -> integer
@@ -343,7 +351,7 @@
 - :main_update(dt: number)
 - :after_update(dt: number)
 - :onDestroy()
-- :cast(type: string) -> T
+- :cast(T: string) -> T
 
 
 
@@ -389,6 +397,10 @@
 - shader
   - :setShader(shader: Shader)
   - :getShader() -> Shader
+
+- z_index
+  - :setZIndex(z_index: integer)
+  - :getZIndex() -> integer
 
 
 
@@ -436,7 +448,7 @@
 
 ## RendTextComponent: Component
 
-- create() -> RendTextComponent
+- create(text_render: MayText, node: Node) -> RendTextComponent
 - :setText(text: string)
 - :getText() -> string
 - :setArea(area: Vec3)
@@ -445,8 +457,17 @@
 - :getFontSize() -> integer
 - :setLineSpacing(spacing: number)
 - :getLineSpacing() -> number
+- .TextAreaMargin
+  - Top
+  - Bottom
+  - Left
+  - Right
 - :setAreaMargin(side: TextAreaMargin(integer), val: number)
 - :getAreaMargin(side: TextAreaMargin(integer)) -> number
+- .TextAlignHorizontal
+  - Left
+  - Center
+  - Right
 - :setTextAlignHorizontal(align: TextAlignHorizontal(integer))
 - :getTextAlignHorizontal() -> TextAlignHorizontal(integer)
 
