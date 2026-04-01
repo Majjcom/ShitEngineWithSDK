@@ -1256,7 +1256,11 @@ void TextEditor::EnterCharacter(ImWchar aChar, bool aShift)
 	if (aChar == '\t' && aShift && mState.mSelectionStart.mLine == mState.mSelectionEnd.mLine)
 	{
 		auto& line = mLines[coord.mLine];
-		bool ok = line.front().mChar == ' ';
+		bool ok = !line.empty();
+		if (ok)
+		{
+			ok = line.front().mChar == ' ';
+		}
 		auto iter = line.begin();
 		if (ok)
 		{
@@ -1267,13 +1271,15 @@ void TextEditor::EnterCharacter(ImWchar aChar, bool aShift)
 				count++;
 			}
 			u.mRemovedStart = Coordinates(coord.mLine, 0);
-			u.mAddedEnd = Coordinates(coord.mLine, count);
+			u.mRemovedEnd = Coordinates(coord.mLine, count);
 			u.mRemoved = "";
 			for (int j = 0; j < count; j++)
 			{
 				u.mRemoved += ' ';
 			}
 			AddUndo(u);
+
+			SetCursorPosition(Coordinates(coord.mLine, std::max(0, coord.mColumn - mTabSize)));
 		}
 		return;
 	}
@@ -1332,10 +1338,10 @@ void TextEditor::EnterCharacter(ImWchar aChar, bool aShift)
 				{
 					// Use Space instead of Tab
 					// line.insert(line.begin(), Glyph('\t', TextEditor::PaletteIndex::Background));
-					line.insert(line.begin(), Glyph(' ', TextEditor::PaletteIndex::Background));
-					line.insert(line.begin(), Glyph(' ', TextEditor::PaletteIndex::Background));
-					line.insert(line.begin(), Glyph(' ', TextEditor::PaletteIndex::Background));
-					line.insert(line.begin(), Glyph(' ', TextEditor::PaletteIndex::Background));
+					for (int j = 0; j < mTabSize; j++)
+					{
+						line.insert(line.begin(), Glyph(' ', TextEditor::PaletteIndex::Background));
+					}
 					modified = true;
 				}
 			}
@@ -1411,10 +1417,37 @@ void TextEditor::EnterCharacter(ImWchar aChar, bool aShift)
 		// Insert Space instead of Tab
 		if (aChar == '\t')
 		{
-			memcpy(buf, "    ", 4);
-			e = 4;
+			memset(buf, 0, sizeof(buf));
+
+			auto& line = mLines[coord.mLine];
+			auto cindex = GetCharacterIndex(coord);
+
+			if (mOverwrite && cindex < (int)line.size())
+			{
+				auto d = UTF8CharLength(line[cindex].mChar);
+
+				u.mRemovedStart = mState.mCursorPosition;
+				u.mRemovedEnd = Coordinates(coord.mLine, GetCharacterColumn(coord.mLine, cindex + d));
+
+				while (d-- > 0 && cindex < (int)line.size())
+				{
+					u.mRemoved += line[cindex].mChar;
+					line.erase(line.begin() + cindex);
+				}
+			}
+
+			std::string added;
+			for (int i = 0; i < mTabSize; ++i, ++cindex)
+			{
+				line.insert(line.begin() + cindex, Glyph(' ', PaletteIndex::Default));
+				added += ' ';
+			}
+
+			u.mAdded = added;
+
+			SetCursorPosition(Coordinates(coord.mLine, GetCharacterColumn(coord.mLine, cindex)));
 		}
-		if (e > 0)
+		else if (e > 0)
 		{
 			buf[e] = '\0';
 			auto& line = mLines[coord.mLine];
