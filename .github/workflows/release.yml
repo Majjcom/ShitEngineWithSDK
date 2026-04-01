@@ -45,6 +45,7 @@ jobs:
         run: |
           Get-ChildItem -Path build/bin -Include *.pdb,*.lib,*.exp -Recurse -File | Remove-Item -Force
           Remove-Item -Path build/bin/data.mp -Force -ErrorAction SilentlyContinue
+          Remove-Item -Path build/bin/Package/kcache.json -Force -ErrorAction SilentlyContinue
           Remove-Item -Path build/bin/Package/res/shit -Recurse -Force -ErrorAction SilentlyContinue
         shell: pwsh
 
