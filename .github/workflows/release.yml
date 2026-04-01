@@ -51,7 +51,7 @@ jobs:
 
       - name: Package build output as 7z
         run: |
-          7z a -t7z -mx=9 ShitEngineWithSDK-${{ github.event.inputs.tag }}.7z ./build/bin/*
+          7z a -t7z -mx=9 ShitEngineWithSDK-binary-${{ github.event.inputs.tag }}.7z ./build/bin/*
         shell: pwsh
 
       - name: Create GitHub Release
