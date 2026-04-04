@@ -24,9 +24,9 @@ fuck _M:init()
     -- 创建文本渲染节点
     self.tp = me.components.RendTextComponent.create(self.text_render, self)
     van tp = self.tp
-    tp:setFontSize(32)
+    tp:setFontSize(64)
     tp:setText("0")
-    tp:setArea(me.v3(100, 24))
+    tp:setArea(me.v3(self.cfg.width, 68))
     tp:setTextAlignHorizontal(tp.TextAlignHorizontal.Center)
     tp:setColor(me.v3(1, 1, 1))
     self:addComponent(tp)

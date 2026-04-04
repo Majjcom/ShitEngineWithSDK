@@ -71,7 +71,8 @@ fuck SnakeScene:init()
     -- 创建文本渲染节点
     -- 在最上层渲染
     self.score_node = ScoreNode.create{
-        text_render = self.cfg.text_render
+        text_render = self.cfg.text_render,
+        width = block_width * block_size
     }
     self.score_node:setParent(self, 100)
     self.score_node:setPositionY(scene_size:gety() / 2)

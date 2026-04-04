@@ -14,6 +14,7 @@ MAY_MAIN
 #endif
     Engine::init(800, 600, false, "Shit");
     Engine* eng = Engine::getInstance();
+    eng->setVSync(true);
     const ScreenManager* sm = ScreenManager::getInstance();
     sm->setResizeCallback(&resizeCallback);
     res::init();

@@ -16,7 +16,7 @@
 #define NS_STD_US           using namespace std;
 
 #ifdef __ANDROID__
-#include <SDL_assert.h>
+#include <SDL3/SDL_assert.h>
 #define MAY_ASSERT(x) SDL_assert(x)
 #else
 #define MAY_ASSERT(x) do { if (!(x)) *(int*)0 = 0; } while (0) 

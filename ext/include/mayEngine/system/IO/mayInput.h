@@ -45,7 +45,7 @@ namespace IO
      */
     enum KeyCode : int16_t
     {
-        KEY_UNKNOWN = -1,
+        KEY_UNKNOWN = 0,
 
         /* Printable keys */
         KEY_SPACE = 44,

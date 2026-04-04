@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef __ANDROID__
-#include <SDL_main.h>
+#include <SDL3/SDL_main.h>
 #endif
 
 #ifdef __EMSCRIPTEN__
