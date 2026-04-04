@@ -19,12 +19,13 @@ MAY_MAIN
     eng->setFrameRate(0);
     eng->setGarbageCleanRateType(Engine::GarbageCleanRateType::RateTime);
     eng->setGarbageCleanRate(60);
+    eng->setVSync(true);
     eng->setCloseRequiredCallback(&Exit::on_exit);
 
     const ScreenManager* sm = ScreenManager::getInstance();
     sm->setResizeCallback(&onResize);
 
-    const float scale = ScreenManager::getDisplayDpi(0) / 96.0f;
+    const float scale = ScreenManager::getInstance()->getDisplayDpi(0) / 96.0f;
     const Vec3 size{ 1280 * scale, 720 * scale };
 
     Scene* scene = ShitEditor::EditorScene::create(size);

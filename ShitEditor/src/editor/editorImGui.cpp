@@ -48,6 +48,8 @@ EditorImGuiComponent::~EditorImGuiComponent()
     {
         debug_server->stop();
     }
+    delete[] font_data_a;
+    delete[] font_data_b;
 }
 
 bool EditorImGuiComponent::init()
@@ -55,19 +57,15 @@ bool EditorImGuiComponent::init()
     ImGuiComponent::init();
     applyCtx();
 
-    const float dpi = ScreenManager::getDisplayDpi(0);
+    const float dpi = ScreenManager::getInstance()->getDisplayDpi(0);
     scale = dpi / 96.0f;
     mLog("DPI缩放比例：%d%%\n", M_SC(int, scale * 100.0f));
     // ImGui::SetWindowFontScale(scale);
-    const float font_size = 20.0f * scale;
+    const float font_size = 20.0f;
 
     const ImGuiIO& io = ImGui::GetIO();
 
     const ResourceManager* man = res::get();
-
-    size_t f_size = man->getResourceSize("/font/HarmonyOS_Sans.ttf");
-    char* f_data = new char[f_size];
-    man->getResource("/font/HarmonyOS_Sans.ttf", f_data, f_size);
 
     static const ImWchar font_ranges[] =
     {
@@ -88,11 +86,15 @@ bool EditorImGuiComponent::init()
         0,
     };
 
+    size_t f_size = man->getResourceSize("/font/HarmonyOS_Sans.ttf");
+    char* f_data = new char[f_size];
+    man->getResource("/font/HarmonyOS_Sans.ttf", f_data, f_size);
+
     ImFontConfig cfg = ImFontConfig();
     cfg.FontDataOwnedByAtlas = false;
     strcpy(cfg.Name, "HarmonyOS Sans SC");
     io.Fonts->AddFontFromMemoryTTF(f_data, f_size, font_size, &cfg, &font_ranges[0]);
-    delete[] f_data;
+    font_data_a = f_data;
 
     f_size = man->getResourceSize("/font/MapleMonoNL-NF-CN-Regular.ttf");
     f_data = new char[f_size];
@@ -104,7 +106,7 @@ bool EditorImGuiComponent::init()
 
     editor_font = io.Fonts->
                      AddFontFromMemoryTTF(f_data, f_size, font_size, &cfg, &font_ranges[0]);
-    delete[] f_data;
+    font_data_b = f_data;
 
     editor = maymnew(TextEditor);
     editor->SetReadOnly(true);
@@ -118,6 +120,8 @@ bool EditorImGuiComponent::init()
 
 void EditorImGuiComponent::apply_theme() const
 {
+    ImGui::GetStyle().FontScaleDpi = scale;
+
     ImVec4* colors = ImGui::GetStyle().Colors;
 
     // Text
@@ -297,7 +301,8 @@ void EditorImGuiComponent::main_update(float dt)
         ImGui::SameLine();
 
         if (ImGui::BeginChild("##TextEditorFrame", ImVec2{ -FLT_MIN, 0 },
-                              ImGuiChildFlags_AutoResizeX, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
+                              ImGuiChildFlags_AutoResizeX,
+                              ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
         {
             ImGuiChildFlags child_flag = ImGuiChildFlags_None;
             const ImVec2 frame_size = ImGui::GetWindowSize();
@@ -321,7 +326,7 @@ void EditorImGuiComponent::main_update(float dt)
                 {
                     debug_window_height = frame_size.y - ImGui::GetWindowHeight();
                 }
-                if (ImGui::IsKeyDown(ImGuiKey_ModCtrl))
+                if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
                 {
                     ImGuiIO& io = ImGui::GetIO();
                     if (io.MouseWheel != 0.0f)
@@ -356,11 +361,13 @@ void EditorImGuiComponent::main_update(float dt)
                 {
                     editor->SetDebugLine(-1);
                 }
-                ImGui::SetWindowFontScale(editor_scale);
+                //ImGui::SetWindowFontScale(editor_scale);
+                ImGui::GetStyle().FontScaleMain = editor_scale;
                 ImGui::PushFont(M_SC(ImFont*, editor_font));
                 editor->Render("##TextEditorInner", ImVec2{ 0, 0 }, false);
                 ImGui::PopFont();
-                ImGui::SetWindowFontScale(1.0f);
+                //ImGui::SetWindowFontScale(1.0f);
+                ImGui::GetStyle().FontScaleMain = 1.0f;
             }
             ImGui::EndChild();
             render_debugger();
@@ -744,7 +751,7 @@ void EditorImGuiComponent::editor_popups()
     if (ImGui::BeginPopupModal("关于 ShitEditor", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove))
     {
-        ImGui::Text("ShitEditor v1.2.0");
+        ImGui::Text("ShitEditor v1.2.1");
         ImGui::Text("Copyright (c) 2026 Majjcom");
         ImGui::Separator();
         if (ImGui::CollapsingHeader("LICENSE"))
@@ -785,7 +792,7 @@ void EditorImGuiComponent::editor_popups()
         ImVec2(0.5f, 0.5f)
     );
     if (ImGui::BeginPopupModal("添加监视", nullptr,
-        ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove))
+                               ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove))
     {
         ImGui::PushFont((ImFont*)editor_font);
         static char buffer[2048]{};
@@ -817,9 +824,9 @@ void EditorImGuiComponent::editor_popups()
         ImVec2(0.5f, 0.5f)
     );
     if (ImGui::BeginPopupModal("正在打包...", nullptr,
-        ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove))
+                               ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove))
     {
-        ImGui::ProgressBar(-(float)ImGui::GetTime(), { 200 * scale , 0 });
+        ImGui::ProgressBar(-(float)ImGui::GetTime(), { 200 * scale, 0 });
         if (!editor_packaging_popup)
         {
             ImGui::CloseCurrentPopup();

@@ -44,6 +44,8 @@ namespace ShitEditor
             NodeType type = File;
         };
         void* editor_font = nullptr;
+        char* font_data_a = nullptr;
+        char* font_data_b = nullptr;
         float scale = 1.0f;
         float editor_scale = 1.0f;
         mvector<std::unique_ptr<ExplorerNode>> explorerNodes;

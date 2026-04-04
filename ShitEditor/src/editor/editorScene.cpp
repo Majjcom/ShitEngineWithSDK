@@ -64,7 +64,7 @@ bool EditorScene::init()
     int monitior_w, monitor_h;
     sm->getDesktopRect(0, &monitior_w, &monitor_h);
     int pos_x = monitior_w / 2 - (int)(size.getx() / 2.0f);
-    int pos_y = monitor_h / 2 - (int)(size.gety() / 2);
+    int pos_y = monitor_h / 2 - (int)(size.gety() / 2.0f);
     sm->setWindowPos({ pos_x, pos_y });
     sm->setWindowSize(size);
     sm->setViewSize((int)size.getx(), (int)size.gety());
@@ -121,7 +121,7 @@ void EditorScene::update(const float dt)
         frame++;
     }
 
-    if (load_finish && splash_alpha > 0 && dt < 0.1)
+    if (load_finish && splash_alpha > 0 && dt < 0.05)
     {
         splash_alpha -= dt * 1.5f;
         if (splash_alpha <= 0)
