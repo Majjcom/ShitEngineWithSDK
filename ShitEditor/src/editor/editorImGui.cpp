@@ -686,6 +686,14 @@ void EditorImGuiComponent::render_menu()
 
         ImGui::Separator();
 
+        ImGui::Text("设置缩进");
+        if (ImGui::InputInt("##Ident", &ident, 1, 2))
+        {
+            editor->SetTabSize(ident);
+        }
+
+        ImGui::Separator();
+
         ImGui::Checkbox("显示样式编辑器", &this->show_style_editor);
 
         ImGui::EndMenu();
@@ -751,7 +759,7 @@ void EditorImGuiComponent::editor_popups()
     if (ImGui::BeginPopupModal("关于 ShitEditor", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove))
     {
-        ImGui::Text("ShitEditor v1.2.1");
+        ImGui::Text("ShitEditor v1.2.2");
         ImGui::Text("Copyright (c) 2026 Majjcom");
         ImGui::Separator();
         if (ImGui::CollapsingHeader("LICENSE"))

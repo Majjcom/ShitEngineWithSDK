@@ -55,7 +55,7 @@
 - setTextureFilterNearest(yesno: boolean)
 - setWindowTitle(title: string)
 - setWindowLimited(yesno: boolean)
-- setResizeCallback(callable: Callable)
+- setResizeCallback(callable: Callable[(integer, integer) -> none])
 - MessageBoxType
   - INFO
   - WARNING
@@ -75,6 +75,7 @@
 
 - checkKeyState(key: integer) -> KeyState
 - getCursorPos() -> Vec3
+- getGlobalCursorPos() -> Vec3
 - checkMouseButton(mouse: integer) -> KeyState
 - getTouchFingers() -> { { ... }, ... }
 - KeyState
@@ -131,6 +132,7 @@
 - getCurrentPipeline() -> Pipeline
 - getClassesInPool() -> { string, ... }
 - exit()
+- setCloseRequiredCallback(callback: Callable[() -> boolean])
 
 
 
