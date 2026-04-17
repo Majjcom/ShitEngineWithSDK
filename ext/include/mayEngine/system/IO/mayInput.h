@@ -21,7 +21,7 @@ namespace IO
      */
     struct TouchFinger
     {
-        int64_t id;
+        uint64_t id;
         float x;
         float y;
         float pressure;
@@ -45,7 +45,7 @@ namespace IO
      */
     enum KeyCode : int16_t
     {
-        KEY_UNKNOWN = -1,
+        KEY_UNKNOWN = 0,
 
         /* Printable keys */
         KEY_SPACE = 44,
@@ -243,11 +243,18 @@ namespace IO
         KeyState checkKeyState(KeyCode key) const;
 
         /**
-         * 获取指针位置.
+         * 获取窗口指针位置.
          * 
          * @return 指针位置
          */
         Vec3 getCursorPos() const;
+
+        /**
+         * 获取指针全局（全局）位置
+         *
+         * @return 指针位置
+         */
+        Vec3 getGlobalCursorPos() const;
 
         /**
          * 检查指定鼠标按键状态.
@@ -310,7 +317,7 @@ namespace IO
         Mousebuttonfun mouseButtonCallback = nullptr;
         Cursorposfun curdorPosCallback = nullptr;
         MouseWhellCallbackFunc mouseWhellCallback = nullptr;
-        int64_t touch_device = -1;
+        uint64_t touch_device = -1;
         InputManager();
     };
 }

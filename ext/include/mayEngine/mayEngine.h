@@ -55,7 +55,7 @@ public:
      * 
      * @param yesno 是否设置
      */
-    static void changeAwareDPI(bool yesno);
+    // static void changeAwareDPI(bool yesno);
 
     /**
      * 是否允许高DPI设置（须要设置changeAwareDPI为false）
@@ -167,7 +167,7 @@ public:
      * 
      * @param yesno 是否检查
      */
-    void setShouldCheckUselessNodes(bool);
+    void setShouldCheckUselessNodes(bool yesno);
 
     /**
      * 已某一场景为启动对象.
@@ -202,6 +202,20 @@ public:
      * @return fps 帧速度，帧 / 秒
      */
     int getFrameRate() const;
+
+    /**
+     * 设置垂直同步
+     *
+     * @param value 是否启用垂直同步
+     */
+    void setVSync(bool value) const;
+
+    /**
+     * 获取垂直同步状态
+     *
+     * @return 是否启用垂直同步
+     */
+    bool getVSync() const;
 
     /**
      * 从配置文件加载渲染管线.

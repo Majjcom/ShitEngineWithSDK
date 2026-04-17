@@ -343,14 +343,14 @@ void EditorImGuiComponent::init_debug_server()
 void EditorImGuiComponent::render_debugger()
 {
     if (!this->show_debug_window) return;
-    ImGui::PushFont(M_SC(ImFont*, editor_font));
+
     if (!ImGui::BeginChild("调试器", ImVec2{ -FLT_MIN, -FLT_MIN },
                            ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize))
     {
         ImGui::EndChild();
         return;
     }
-
+    ImGui::PushFont(M_SC(ImFont*, editor_font));
     ImGui::BeginDisabled(!debugger_connected);
     if (ImGui::BeginChild("##Tools", { 0, -FLT_MIN },
                           ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY |

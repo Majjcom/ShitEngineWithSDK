@@ -32,6 +32,7 @@ namespace ShitEditor
 
     private:
         TextEditor* editor = nullptr;
+
         struct ExplorerNode
         {
             enum NodeType
@@ -39,11 +40,16 @@ namespace ShitEditor
                 Directory = 0,
                 File,
             };
+
             mstring path{};
             mvector<std::unique_ptr<ExplorerNode>> files;
             NodeType type = File;
         };
+
         void* editor_font = nullptr;
+        char* font_data_a = nullptr;
+        char* font_data_b = nullptr;
+        int ident = 4;
         float scale = 1.0f;
         float editor_scale = 1.0f;
         mvector<std::unique_ptr<ExplorerNode>> explorerNodes;
@@ -67,6 +73,20 @@ namespace ShitEditor
         bool show_style_editor = false;
         bool editor_packaging_popup = false;
         munordered_map<mstring, int> remember_editing_lines;
+
+        // Methods
+        void apply_theme() const;
+        void flush_explorer();
+        void render_explorer();
+        void draw_explorer_node(const ExplorerNode* node);
+        void explorer_popups();
+        void update_editor_content();
+        void render_menu();
+        void render_menu_tools();
+        void save_current_file();
+        void editor_popups();
+        void update_editor_title();
+        void process_op();
 
         // Debugger
         std::unordered_map<mstring, std::unordered_set<int>> breakpoints;
@@ -94,20 +114,5 @@ namespace ShitEditor
         void add_watch(const mstring& expr);
         void clear_watch();
         void flush_stack_info() const;
-
-        // Methods
-        void apply_theme() const;
-        void flush_explorer();
-        void render_explorer();
-        void draw_explorer_node(const ExplorerNode* node);
-        void explorer_popups();
-        void update_editor_content();
-        void render_menu();
-        void render_menu_tools();
-        void save_current_file();
-        void editor_popups();
-        void update_editor_title();
-        void process_op();
-
     };
 }

@@ -277,13 +277,6 @@ public:
     void getDesktopRect(int display, int* width, int* height) const;
 
     /**
-     * 设置是否隐藏任务栏图标.
-     * 
-     * @param yesno
-     */
-    static void setSkipTaskbar(bool yesno);
-
-    /**
      * 这是是否为工具窗口.
      *
      * @param yesno 是否为工具窗口
@@ -314,7 +307,7 @@ public:
      * @param display 显示ID
      * @return        显示DPI
      */
-    static float getDisplayDpi(int display);
+    float getDisplayDpi(int display) const;
 
     /**
      * 消息弹窗类型
