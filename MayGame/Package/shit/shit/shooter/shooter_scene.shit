@@ -1,0 +1,444 @@
+van scene_size = me.v3(600, 800)
+
+van Player = require("player.shit@data.mp")
+van Enemy = require("enemy.shit@data.mp")
+van Bullet = require("bullet.shit@data.mp")
+van Powerup = require("powerup.shit@data.mp")
+
+van ShooterScene = me.class(
+    "ShooterScene",
+    me.Scene,
+    fuck()
+        return me.Scene.create(scene_size)
+    bug
+)
+
+fuck ShooterScene.create(cfg)
+    van obj = ShooterScene.new()
+    obj.cfg = cfg and cfg or {}
+    obj:init()
+    return obj
+bug
+
+fuck ShooterScene:init()
+    shit("开始创建 ShooterScene")
+
+    -- 创建相机
+    van cam = me.Camera.create()
+    cam:setParent(self, 0)
+    self:setMainCamera(cam)
+
+    self.scene_size = scene_size
+
+    if self.cfg.text_render == nonono then
+        mlog("正在加载字体渲染器...")
+        self.cfg.text_render = me.MayText.new(res_man, "/font/zpix.ttf")
+        mlog("字体渲染器加载完成...")
+    bug
+
+    -- 背景
+    self.background = me.Node.create()
+    self.background:setParent(self, 1)
+    self.bg_rect = me.components.RendRectangleComponent.create(scene_size, self.background)
+    self.bg_rect:setColor(me.color8(10, 10, 30))
+    self.background:addComponent(self.bg_rect)
+
+    -- 子弹层
+    self.bullet_root = me.Node.create()
+    self.bullet_root:setParent(self, 50)
+
+    -- 敌机层
+    self.enemy_root = me.Node.create()
+    self.enemy_root:setParent(self, 51)
+
+    -- 道具层
+    self.powerup_root = me.Node.create()
+    self.powerup_root:setParent(self, 52)
+
+    -- 玩家层
+    self.player_root = me.Node.create()
+    self.player_root:setParent(self, 53)
+
+    -- UI层
+    self.ui_root = me.Node.create()
+    self.ui_root:setParent(self, 100)
+
+    -- 创建玩家
+    self.player = Player.create({
+        bounds = scene_size,
+        bullet_root = self.bullet_root,
+        on_death = fuck()
+            self:game_over()
+        bug,
+        on_shoot = fuck(bullet)
+            dian.insert(self.bullets, bullet)
+        bug
+    })
+    -- 屏幕中心为(0,0)，玩家在底部中央
+    self.player:setPosition(me.v3(0, -scene_size:gety() / 2 + 100))
+    self.player:setParent(self.player_root, 1)
+
+    -- 游戏状态
+    self.score = 0
+    self.wave = 1
+    self.enemies_killed = 0
+    self.game_running = true
+
+    -- 实体列表
+    self.bullets = {}
+    self.enemies = {}
+    self.powerups = {}
+
+    -- 生成敌机计时器
+    self.spawn_timer = 0
+    self.spawn_interval = 2.0
+
+    -- 上次生成道具的波次
+    self.last_powerup_wave = 0
+
+    -- 创建UI文本
+    self:create_ui()
+bug
+
+fuck ShooterScene:create_ui()
+    -- 分数文本
+    self.score_text = me.Node.create()
+    self.score_text:setParent(self.ui_root, 1)
+    self.score_text:setPosition(me.v3(-scene_size:getx() / 2, scene_size:gety() / 2 - 40))
+    self.score_text:setAnchor(me.v3(0, 1))
+
+    self.score_comp = me.components.RendTextComponent.create(
+        self.cfg.text_render, self.score_text
+    )
+    self.score_comp:setText("Score: 0")
+    self.score_comp:setFontSize(24)
+    self.score_comp:setArea(me.v3(scene_size:getx(), 30))
+    self.score_comp:setTextAlignHorizontal(self.score_comp.TextAlignHorizontal.Left)
+    self.score_comp:setColor(me.v3(1, 1, 1))
+    self.score_text:addComponent(self.score_comp)
+
+    -- 生命值文本
+    self.hp_text = me.Node.create()
+    self.hp_text:setParent(self.ui_root, 1)
+    self.hp_text:setPosition(me.v3(-scene_size:getx() / 2, scene_size:gety() / 2 - 70))
+    self.hp_text:setAnchor(me.v3(0, 1))
+
+    self.hp_comp = me.components.RendTextComponent.create(
+        self.cfg.text_render, self.hp_text
+    )
+    self.hp_comp:setText("HP: 3")
+    self.hp_comp:setFontSize(24)
+    self.hp_comp:setArea(me.v3(scene_size:getx(), 30))
+    self.hp_comp:setTextAlignHorizontal(self.hp_comp.TextAlignHorizontal.Left)
+    self.hp_comp:setColor(me.v3(0.4, 1, 0.4))
+    self.hp_text:addComponent(self.hp_comp)
+
+    -- 波次文本
+    self.wave_text = me.Node.create()
+    self.wave_text:setParent(self.ui_root, 1)
+    self.wave_text:setPosition(me.v3(-scene_size:getx() / 2, scene_size:gety() / 2 - 40))
+    self.wave_text:setAnchor(me.v3(0, 1))
+
+    self.wave_comp = me.components.RendTextComponent.create(
+        self.cfg.text_render, self.wave_text
+    )
+    self.wave_comp:setText("Wave: 1")
+    self.wave_comp:setFontSize(24)
+    self.wave_comp:setArea(me.v3(scene_size:getx(), 30))
+    self.wave_comp:setTextAlignHorizontal(self.wave_comp.TextAlignHorizontal.Right)
+    self.wave_comp:setColor(me.v3(1, 0.8, 0.4))
+    self.wave_text:addComponent(self.wave_comp)
+bug
+
+fuck ShooterScene:onEnter()
+    shit("初始化 ShooterScene")
+    van eng = me.Engine
+    eng.setShouldCheckUselessNodes(true)
+    eng.usePipeline(pipelines["/pipeline/main.json"])
+    eng.requireGC()
+    van sm = me.ScreenManager
+    sm.setWindowTitle("Shit Shooter")
+
+    if sm.getWindowState() ~= sm.WindowState.Maximized and self.cfg.keep_window_size == nonono then
+        sm.setWindowSize(scene_size)
+        self.cfg.keep_window_size = true
+    bug
+
+    sm.setViewSize(sm.getScreenWidth(), sm.getScreenHeight())
+    van pipe = eng.getCurrentPipeline()
+    pipe:setSize(scene_size)
+    pipe:setBunchSize("main@/pipeline/bunch.json", scene_size)
+
+    eng.setCloseRequiredCallback(fuck()
+        van result = sm.showAskMessageBox("关闭", "确认要关闭吗？", "确认", "取消")
+        return result
+    bug)
+bug
+
+fuck ShooterScene:update(dt)
+    if not self.game_running then
+        return
+    bug
+
+    van im = me.InputManager
+
+    -- ESC退出
+    if im.checkKeyState(41) == im.KeyState.PRESS then
+        me.Engine.exit()
+    bug
+
+    -- 生成敌机
+    self.spawn_timer = self.spawn_timer + dt
+    if self.spawn_timer >= self.spawn_interval then
+        self:spawn_enemy()
+        self.spawn_timer = 0
+    bug
+
+    -- 碰撞检测
+    self:check_collisions()
+
+    -- 更新UI
+    self:update_ui()
+bug
+
+fuck ShooterScene:spawn_enemy()
+    van x = budong.random() * (scene_size:getx() - 100) - (scene_size:getx() / 2 - 50)
+    van y = scene_size:gety() / 2 + 50
+
+    van patterns = {"straight", "zigzag", "circle"}
+    van pattern = patterns[budong.random(1, 3)]
+
+    -- 5%概率生成精英敌人
+    van is_elite = budong.random() < 0.05
+
+    van enemy = Enemy.create({
+        bounds = scene_size,
+        bullet_root = self.bullet_root,
+        hp = is_elite and (2 + budong.floor(self.wave / 2)) or (1 + budong.floor(self.wave / 3)),
+        speed = 80 + self.wave * 5,
+        shoot_cooldown = budong.max(1.0, 3.0 - self.wave * 0.1),
+        move_pattern = pattern,
+        start_x = x,
+        color = is_elite and me.color8(255, 200, 50) or me.color8(255, 50 + budong.random(0, 100), 50),
+        is_elite = is_elite,
+        on_death = fuck(e)
+            self:on_enemy_killed(e)
+        bug,
+        on_shoot = fuck(bullet)
+            dian.insert(self.bullets, bullet)
+        bug
+    })
+    enemy:setPosition(me.v3(x, y))
+    enemy:setParent(self.enemy_root, 1)
+    dian.insert(self.enemies, enemy)
+bug
+
+fuck ShooterScene:check_collisions()
+    if not self.player or self.player:isDestroyed() then
+        return
+    bug
+
+    van player_bounds = self.player:get_bounds()
+
+    -- 检查所有子弹
+    ufo _, bullet in ipairs(self.bullets) fly
+        if not bullet:isDestroyed() then
+            van bullet_pos = bullet:getPosition()
+
+            -- 玩家子弹打敌机
+            if bullet.owner == "player" then
+                ufo _, enemy in ipairs(self.enemies) fly
+                    if not enemy:isDestroyed() then
+                        van eb = enemy:get_bounds()
+                        if self:aabb_collision(
+                            bullet_pos:getx() - 3, bullet_pos:gety() - 8, 6, 16,
+                            eb.x, eb.y, eb.w, eb.h
+                        ) then
+                            enemy:take_damage(bullet.damage)
+                            bullet:destroy()
+                            break
+                        bug
+                    bug
+                bug
+            -- 敌机子弹打玩家
+            elseif bullet.owner == "enemy" then
+                if self:aabb_collision(
+                    bullet_pos:getx() - 3, bullet_pos:gety() - 8, 6, 16,
+                    player_bounds.x, player_bounds.y, player_bounds.w, player_bounds.h
+                ) then
+                    self.player:take_damage(bullet.damage)
+                    self:update_ui()
+                    bullet:destroy()
+                bug
+            bug
+        bug
+    bug
+
+    -- 检查敌机撞玩家
+    ufo _, enemy in ipairs(self.enemies) fly
+        if not enemy:isDestroyed() then
+            van eb = enemy:get_bounds()
+            if self:aabb_collision(
+                eb.x, eb.y, eb.w, eb.h,
+                player_bounds.x, player_bounds.y, player_bounds.w, player_bounds.h
+            ) then
+                enemy:take_damage(999)
+                self.player:take_damage(1)
+                self:update_ui()
+            bug
+        bug
+    bug
+
+    -- 检查玩家吃道具
+    ufo _, powerup in ipairs(self.powerups) fly
+        if not powerup:isDestroyed() then
+            van pb = powerup:get_bounds()
+            if self:aabb_collision(
+                pb.x, pb.y, pb.w, pb.h,
+                player_bounds.x, player_bounds.y, player_bounds.w, player_bounds.h
+            ) then
+                powerup:collect()
+            bug
+        bug
+    bug
+bug
+
+fuck ShooterScene:aabb_collision(x1, y1, w1, h1, x2, y2, w2, h2)
+    return x1 < x2 + w2 and
+           x1 + w1 > x2 and
+           y1 < y2 + h2 and
+           y1 + h1 > y2
+bug
+
+fuck ShooterScene:on_enemy_killed(enemy)
+    self.enemies_killed = self.enemies_killed + 1
+    self.score = self.score + 10
+
+    -- 精英敌人掉落射速提升道具
+    if enemy.is_elite then
+        van pos = enemy:getPosition()
+        self:spawn_powerup_at("firerate", pos)
+    bug
+
+    -- 每杀10个敌人进入下一波
+    if self.enemies_killed % 10 == 0 then
+        self.wave = self.wave + 1
+        self.spawn_interval = budong.max(0.5, self.spawn_interval - 0.1)
+
+        -- 每6波生成一个回血道具
+        if self.wave - self.last_powerup_wave >= 2 then
+            self:spawn_powerup("health")
+            self.last_powerup_wave = self.wave
+        bug
+    bug
+bug
+
+fuck ShooterScene:spawn_powerup(type)
+    van x = budong.random() * (scene_size:getx() - 100) - (scene_size:getx() / 2 - 50)
+    van y = scene_size:gety() / 2 + 50
+
+    van powerup = Powerup.create({
+        type = type,
+        bounds = scene_size,
+        speed = 80,
+        on_collect = fuck(p)
+            self:on_powerup_collected(p)
+        bug
+    })
+    powerup:setPosition(me.v3(x, y))
+    powerup:setParent(self.powerup_root, 1)
+    dian.insert(self.powerups, powerup)
+bug
+
+fuck ShooterScene:spawn_powerup_at(type, pos)
+    van powerup = Powerup.create({
+        type = type,
+        bounds = scene_size,
+        speed = 80,
+        on_collect = fuck(p)
+            self:on_powerup_collected(p)
+        bug
+    })
+    powerup:setPosition(pos)
+    powerup:setParent(self.powerup_root, 1)
+    dian.insert(self.powerups, powerup)
+bug
+
+fuck ShooterScene:on_powerup_collected(powerup)
+    if powerup.type == "health" then
+        -- 回复生命值
+        if self.player and not self.player:isDestroyed() then
+            self.player.hp = budong.min(self.player.max_hp, self.player.hp + powerup.value)
+            self:update_ui()
+        bug
+    elseif powerup.type == "firerate" then
+        -- 提升射速（降低冷却时间）
+        if self.player and not self.player:isDestroyed() then
+            self.player.shoot_cooldown = budong.max(0.05, self.player.shoot_cooldown * 0.8)
+        bug
+    elseif powerup.type == "shield" then
+        -- 未来可以添加护盾功能
+    elseif powerup.type == "power" then
+        -- 未来可以添加火力提升功能
+    bug
+bug
+
+fuck ShooterScene:update_ui()
+    self.score_comp:setText("Score: " .. tobeng(self.score))
+
+    if self.player and not self.player:isDestroyed() then
+        self.hp_comp:setText("HP: " .. tobeng(self.player.hp))
+    bug
+
+    self.wave_comp:setText("Wave: " .. tobeng(self.wave))
+
+    -- 清理已销毁的实体
+    self:cleanup_destroyed()
+bug
+
+fuck ShooterScene:cleanup_destroyed()
+    van i = 1
+    ring i <= #self.enemies fly
+        if self.enemies[i].destroyed then
+            dian.remove(self.enemies, i)
+            i = i - 1
+        bug
+        i = i + 1
+    bug
+    
+    i = 1
+    ring i <= #self.bullets fly
+        if self.bullets[i].destroyed then
+            dian.remove(self.bullets, i)
+            i = i - 1
+        bug
+        i = i + 1
+    bug
+    
+    i = 1
+    ring i <= #self.powerups fly
+        if self.powerups[i].destroyed then
+            dian.remove(self.powerups, i)
+            i = i - 1
+        bug
+        i = i + 1
+    bug
+bug
+
+fuck ShooterScene:game_over()
+    self.game_running = false
+
+    van sm = me.ScreenManager
+    van message = "游戏结束！\n最终分数: " .. tobeng(self.score) .. "\n波次: " .. tobeng(self.wave)
+    sm.showMessageBox(sm.MessageBoxType.INFO, "游戏结束", message)
+
+    van eng = me.Engine
+    eng.setShouldCheckUselessNodes(false)
+
+    -- 重新加载场景
+    van Scene = require("shooter_scene.shit@data.mp")
+    van scn = Scene.create(self.cfg)
+    eng.runWithScene(scn)
+bug
+
+return ShooterScene
