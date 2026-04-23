@@ -6,7 +6,7 @@
 
 ## 构建
 
-目前仅支持在Windows中构建。
+目前可以在Windows和Linux中构建和使用。
 
 
 
@@ -17,6 +17,8 @@
 将内容解压到目录`ext/boost`下即可
 
 Windows需要安装Visual Studio 2022，以及`10.0.19041.0`及以上版本的Windows SDK
+
+Linux需要安装clang编译器
 
 如需开发测试，建议使用CLion+CMake+Ninja进行开发
 
