@@ -15,5 +15,5 @@ endif ()
 
 add_custom_command(
         OUTPUT sedata.mp
-        COMMAND ${CMAKE_SOURCE_DIR}/tools/MayPack.exe --pack --sign -i ${CMAKE_CURRENT_SOURCE_DIR}/res -o ${CMAKE_BINARY_DIR}/bin/sedata.mp --keycache=${CMAKE_CURRENT_SOURCE_DIR}/kcache.json --keypath=${CMAKE_CURRENT_SOURCE_DIR}/pri.key --key=0XUDGMMi
+        COMMAND ${CMAKE_SOURCE_DIR}/tools/MayPack --pack --sign -i ${CMAKE_CURRENT_SOURCE_DIR}/res -o ${CMAKE_BINARY_DIR}/bin/sedata.mp --keycache=${CMAKE_CURRENT_SOURCE_DIR}/kcache.json --keypath=${CMAKE_CURRENT_SOURCE_DIR}/pri.key --key=0XUDGMMi
 )
