@@ -3,9 +3,15 @@
 #include <filesystem>
 #include <thread>
 
+#ifdef _WIN32
 #include <Windows.h>
+#else
+#include <unistd.h>
+#include <sys/wait.h>
+#endif
 
 #include <mayEngine/tools/imgui/imgui.h>
+#include <mayEngine/tools/imgui/imgui_internal.h>
 
 #include <mobdebug_server.h>
 
@@ -306,23 +312,23 @@ void EditorImGuiComponent::main_update(float dt)
         {
             ImGuiChildFlags child_flag = ImGuiChildFlags_None;
             const ImVec2 frame_size = ImGui::GetWindowSize();
-            if (show_debug_window)
+            if (show_tools_window)
             {
                 child_flag |= ImGuiChildFlags_ResizeY;
-                float maxy = frame_size.y - 168.0f * scale;
+                float maxy = frame_size.y - 220.0f * scale;
                 if (maxy < 0)
                 {
                     maxy = 0;
                 }
                 ImGui::SetNextWindowSizeConstraints({ 0, 0 }, { FLT_MAX, maxy });
             }
-            if (size_updated && show_debug_window)
+            if (size_updated && show_tools_window)
             {
                 ImGui::SetNextWindowSize({ -FLT_MAX, frame_size.y - debug_window_height });
             }
             if (ImGui::BeginChild("##TextEditor", ImVec2{ -FLT_MIN, 0 }, child_flag))
             {
-                if (show_debug_window)
+                if (show_tools_window)
                 {
                     debug_window_height = frame_size.y - ImGui::GetWindowHeight();
                 }
@@ -370,7 +376,14 @@ void EditorImGuiComponent::main_update(float dt)
                 ImGui::GetStyle().FontScaleMain = 1.0f;
             }
             ImGui::EndChild();
-            render_debugger();
+
+            if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_F, ImGuiInputFlags_RouteGlobal))
+            {
+                show_find_window = true;
+            }
+
+            // render_debugger();
+            render_tool_window();
         }
         ImGui::EndChild();
 
@@ -594,6 +607,8 @@ void EditorImGuiComponent::render_menu()
         {
             editor->SelectAll();
         }
+        ImGui::Separator();
+        ImGui::Checkbox("显示查找窗口", &show_find_window);
         ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("运行"))
@@ -674,6 +689,16 @@ void EditorImGuiComponent::render_menu()
     }
     if (ImGui::BeginMenu("设置"))
     {
+        if (ImGui::Checkbox("显示工具窗口", &show_tools_window))
+        {
+            if (!show_tools_window)
+            {
+                show_debug_window = false;
+                show_find_window = false;
+            }
+        }
+        ImGui::Separator();
+
         ImGui::Text("缩放");
         ImGui::SameLine(0, 10.0f);
         if (ImGui::SmallButton("重置"))
@@ -732,12 +757,12 @@ void EditorImGuiComponent::editor_popups()
             ImGui::SetWindowFontScale(1.0f);
         }
         ImGui::Separator();
-        if (ImGui::Button("取消", ImVec2{ 100, 0 }))
+        if (ImGui::Button("取消", ImVec2{ 80 * scale, 0 }))
         {
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
-        if (ImGui::Button("确定", ImVec2{ 100, 0 }))
+        if (ImGui::Button("确定", ImVec2{ 80 * scale, 0 }))
         {
             Exit::set_accept_exit(true);
             Engine::getInstance()->exit();
@@ -781,8 +806,8 @@ void EditorImGuiComponent::editor_popups()
             ImGui::PopFont();
         }
         ImGui::Separator();
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2.0f - 50.0f);
-        if (ImGui::Button("关闭", ImVec2{ 100, 0 }))
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2.0f - (80.0f * scale / 2.0f));
+        if (ImGui::Button("关闭", ImVec2{ 80 * scale, 0 }))
         {
             ImGui::CloseCurrentPopup();
         }
@@ -807,12 +832,12 @@ void EditorImGuiComponent::editor_popups()
         ImGui::InputText("##Expr", buffer, 2048);
         ImGui::PopFont();
         ImGui::Separator();
-        if (ImGui::Button("取消", { 100, 0 }))
+        if (ImGui::Button("取消", { 80 * scale, 0 }))
         {
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
-        if (ImGui::Button("添加", { 100, 0 }))
+        if (ImGui::Button("添加", { 80 * scale, 0 }))
         {
             if (buffer[0] != '\0')
             {
@@ -898,7 +923,11 @@ void EditorImGuiComponent::process_op()
             editor_packaging_popup = true;
             std::thread([this]
             {
+#ifdef _WIN32
                 system("createPackage.bat");
+#else
+                system("./createPackage.sh");
+#endif
                 editor_packaging_popup = false;
             }).detach();
         }
@@ -919,6 +948,7 @@ void EditorImGuiComponent::process_op()
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
 
+#ifdef _WIN32
             STARTUPINFO si{};
             PROCESS_INFORMATION pi{};
             si.cb = sizeof(si);
@@ -939,7 +969,29 @@ void EditorImGuiComponent::process_op()
 
             CloseHandle(pi.hProcess);
             CloseHandle(pi.hThread);
+#else
+            const pid_t pid = fork();
+            if (pid < 0)
+            {
+                mLoge("创建进程失败...\n");
+                *monitor = false;
+                return;
+            }
 
+            if (pid == 0)
+            {
+                // 子进程
+                execlp("./ShitGame", "", nullptr);
+                mLoge("进程执行失败...\n");
+                exit(1);
+            }
+            else
+            {
+                // 父进程
+                int status;
+                waitpid(pid, &status, 0);
+            }
+#endif
             *monitor = false;
         }, &process_running);
         process.detach();

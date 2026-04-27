@@ -10,7 +10,9 @@ NS_MAY_US;
 
 MAY_MAIN
 {
+#ifdef _WIN32
     system("chcp 65001>nul 2>nul");
+#endif
 
     Engine::init(1280, 720, false, "ShitEditor");
     DEBUG::setLogLevel(DEBUG::LogLevel::Debug);

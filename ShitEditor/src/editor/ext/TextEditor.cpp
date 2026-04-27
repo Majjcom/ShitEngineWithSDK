@@ -2031,6 +2031,73 @@ bool TextEditor::HasSelection() const
 	return mState.mSelectionEnd > mState.mSelectionStart;
 }
 
+std::pair<TextEditor::Coordinates, TextEditor::Coordinates> TextEditor::GetSelection()
+{
+	return { mState.mSelectionStart, mState.mSelectionEnd };
+}
+
+std::optional<std::pair<TextEditor::Coordinates, TextEditor::Coordinates>> TextEditor::FindTextFrom(
+	const Coordinates& aPosition, const std::string_view& text)
+{
+	// TODO: Add more feature: ignore case, full word, multiline, extended, regex, e.g.
+	if (text.empty())
+	{
+		return std::nullopt;
+	}
+	int begin_lineno = aPosition.mLine;
+	int col = GetCharacterIndex(Coordinates(begin_lineno, aPosition.mColumn));
+	if (col < 0)
+	{
+		return std::nullopt;
+	}
+	if (col >= mLines[aPosition.mLine].size())
+	{
+		col = 0;
+		begin_lineno++;
+	}
+	if (begin_lineno >= mLines.size())
+	{
+		return  std::nullopt;
+	}
+	for (int lineno = begin_lineno; lineno < mLines.size(); ++lineno)
+	{
+		Line& line = mLines[lineno];
+		if (line.empty())
+		{
+			continue;
+		}
+		if (lineno != begin_lineno)
+		{
+			col = 0;
+		}
+		const int col_end = (int)line.size() - (int)text.size();
+		for ( ; col <= col_end; ++col)
+		{
+			const Char& chr = line[col].mChar;
+			if (chr == (Char)text[0])
+			{
+				bool ok = true;
+				for (int i = 1; i < text.size() && ok; ++i)
+				{
+					const int icol = col + i;
+					ok = ok && (line[icol].mChar == (Char)text[i]);
+				}
+				if (ok)
+				{
+					const int rcol = GetCharacterColumn(lineno, col);
+					const int ecol = GetCharacterColumn(lineno, col + (int)text.size());
+
+					return {{
+						Coordinates(lineno, rcol),
+						Coordinates(lineno, ecol)
+					}};
+				}
+			}
+		}
+	}
+	return std::nullopt;
+}
+
 void TextEditor::Copy()
 {
 	if (HasSelection())
@@ -2131,7 +2198,7 @@ const TextEditor::Palette & TextEditor::GetDarkPalette()
 {
 	const static Palette p = { {
 			0xff7f7f7f,	// Default
-			0xffd69c56,	// Keyword	
+			0xffd69c56,	// Keyword
 			0xff00ff00,	// Number
 			0xff7070e0,	// String
 			0xff70a0e0, // Char literal
@@ -2159,7 +2226,7 @@ const TextEditor::Palette & TextEditor::GetLightPalette()
 {
 	const static Palette p = { {
 			0xff7f7f7f,	// None
-			0xffff0c06,	// Keyword	
+			0xffff0c06,	// Keyword
 			0xff008000,	// Number
 			0xff2020a0,	// String
 			0xff304070, // Char literal
@@ -2187,7 +2254,7 @@ const TextEditor::Palette & TextEditor::GetRetroBluePalette()
 {
 	const static Palette p = { {
 			0xff00ffff,	// None
-			0xffffff00,	// Keyword	
+			0xffffff00,	// Keyword
 			0xff00ff00,	// Number
 			0xff808000,	// String
 			0xff808000, // Char literal
@@ -2459,7 +2526,7 @@ void TextEditor::ColorizeInternal()
 						{
 							withinSingleLineComment = true;
 						}
-						if ((!withinSingleLineComment || mLanguageDefinition.mName == "ShitLang") && currentIndex + startStr.size() <= line.size() &&
+						if ((!withinSingleLineComment || mLanguageDefinition.mMultiLineCommentPriority) && currentIndex + startStr.size() <= line.size() &&
 							equals(startStr.begin(), startStr.end(), from, from + startStr.size(), pred))
 						{
 							withinSingleLineComment = false;
@@ -3278,6 +3345,7 @@ const TextEditor::LanguageDefinition& TextEditor::LanguageDefinition::Lua()
 
 		langDef.mCaseSensitive = true;
 		langDef.mAutoIndentation = true;
+		langDef.mMultiLineCommentPriority = true;
 
 		langDef.mName = "Lua";
 
@@ -3332,6 +3400,7 @@ const TextEditor::LanguageDefinition& TextEditor::LanguageDefinition::ShitLang()
 
 		langDef.mCaseSensitive = true;
 		langDef.mAutoIndentation = true;
+		langDef.mMultiLineCommentPriority = true;
 
 		langDef.mName = "ShitLang";
 

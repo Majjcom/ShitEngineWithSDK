@@ -73,6 +73,9 @@ namespace ShitEditor
         bool show_style_editor = false;
         bool editor_packaging_popup = false;
         munordered_map<mstring, int> remember_editing_lines;
+        bool show_tools_window = false;
+        bool show_find_window = false;
+        bool find_last_find = false;
 
         // Methods
         void apply_theme() const;
@@ -87,6 +90,8 @@ namespace ShitEditor
         void editor_popups();
         void update_editor_title();
         void process_op();
+        void render_tool_window();
+        void render_find_window();
 
         // Debugger
         std::unordered_map<mstring, std::unordered_set<int>> breakpoints;

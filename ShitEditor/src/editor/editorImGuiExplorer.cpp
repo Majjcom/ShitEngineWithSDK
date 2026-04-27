@@ -232,13 +232,13 @@ void EditorImGuiComponent::explorer_popups()
         }
         ImGui::InputText("##RenameText", text_buffer, std::size(text_buffer));
         ImGui::Separator();
-        if (ImGui::Button("取消", ImVec2{ 100, 0 }))
+        if (ImGui::Button("取消", ImVec2{ 80 * scale, 0 }))
         {
             text_buffer[0] = '\0';
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
-        if (ImGui::Button("确认", ImVec2{ 100, 0 }))
+        if (ImGui::Button("确认", ImVec2{ 80 * scale, 0 }))
         {
             if (strlen(text_buffer) != 0)
             {
@@ -339,7 +339,7 @@ void EditorImGuiComponent::explorer_popups()
         {
             ImGui::Text("%s", fail_reason);
             ImGui::Separator();
-            if (ImGui::Button("关闭", ImVec2{ 120, 0 }))
+            if (ImGui::Button("关闭", ImVec2{ 80 * scale, 0 }))
             {
                 ImGui::CloseCurrentPopup();
             }
@@ -365,12 +365,12 @@ void EditorImGuiComponent::explorer_popups()
     {
         ImGui::Text("确认删除？");
         ImGui::Separator();
-        if (ImGui::Button("取消", ImVec2{ 100, 0 }))
+        if (ImGui::Button("取消", ImVec2{ 80 * scale, 0 }))
         {
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
-        if (ImGui::Button("确认", ImVec2{ 100, 0 }))
+        if (ImGui::Button("确认", ImVec2{ 80 * scale, 0 }))
         {
             if (fs::exists(explorer_popup_file_path))
             {
