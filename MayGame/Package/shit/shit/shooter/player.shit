@@ -43,6 +43,11 @@ fuck Player:init()
     self.shoot_timer = 0
     self.hp = 3
     self.max_hp = 3
+    self.initial_shoot_cooldown = 0.2
+    self.min_shoot_cooldown = 0.05
+    self.max_beam_count = 5
+    self.beam_count = 1
+    self.bullet_zone_width = self.cfg.bullet_zone_width or 60
 bug
 
 fuck Player:onEnter()
@@ -50,6 +55,10 @@ fuck Player:onEnter()
 bug
 
 fuck Player:update(dt)
+    if dt > 0.5 then
+        dt = 0.03
+    bug
+
     if not self.is_alive then
         return
     bug
@@ -110,22 +119,36 @@ fuck Player:update_shooting(dt)
     bug
 bug
 
+fuck Player:upgrade_firerate()
+    if self.shoot_cooldown > self.min_shoot_cooldown then
+        self.shoot_cooldown = budong.max(self.min_shoot_cooldown, self.shoot_cooldown * 0.8)
+    elseif self.beam_count < self.max_beam_count then
+        self.beam_count = self.beam_count + 1
+        self.shoot_cooldown = self.min_shoot_cooldown + (self.initial_shoot_cooldown - self.min_shoot_cooldown) / 3
+    bug
+bug
+
 fuck Player:shoot()
     van pos = self:getPosition()
+    van spacing = self.bullet_zone_width / self.beam_count
+    van offset_start = -(self.bullet_zone_width - spacing) / 2
 
-    van bullet = Bullet.create({
-        speed = 1000,
-        direction = me.v3(0, 1),
-        color = me.color8(255, 255, 100),
-        bounds = self.cfg.bounds,
-        owner = "player",
-        damage = 1,
-    })
-    bullet:setPosition(pos + me.v3(0, 30))
-    bullet:setParent(self.cfg.bullet_root, 1)
+    ufo i = 1, self.beam_count fly
+        van x_offset = offset_start + spacing * (i - 1)
 
-    if self.cfg.on_shoot then
-        self.cfg.on_shoot(bullet)
+        van bullet = Bullet.quick_create(self.cfg.bullet_root, 1, {
+            speed = 1000,
+            direction = me.v3(0, 1),
+            color = me.color8(255, 255, 100),
+            bounds = self.cfg.bounds,
+            owner = "player",
+            damage = 1,
+        })
+        bullet:setPosition(pos + me.v3(x_offset, 30))
+
+        if self.cfg.on_shoot then
+            self.cfg.on_shoot(bullet)
+        bug
     bug
 bug
 
