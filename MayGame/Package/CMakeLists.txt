@@ -13,10 +13,17 @@ if (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Release")
         set(ADDITIONAL_CMD -v)
 endif ()
 
-add_custom_command(
-        OUTPUT data.mp
-        COMMAND ${CMAKE_BINARY_DIR}/bin/createPackage.bat
-)
+if (WIN32)
+    add_custom_command(
+            OUTPUT data.mp
+            COMMAND ${CMAKE_BINARY_DIR}/bin/createPackage.bat
+    )
+else ()
+    add_custom_command(
+            OUTPUT data.mp
+            COMMAND ${CMAKE_BINARY_DIR}/bin/createPackage.sh
+    )
+endif ()
 
 add_custom_target(
         CompileLuaCode

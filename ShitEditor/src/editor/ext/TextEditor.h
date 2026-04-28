@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <map>
 #include <regex>
+#include <optional>
 #include <mayEngine/tools/imgui/imgui.h>
 
 class TextEditor
@@ -162,6 +163,7 @@ public:
 		std::string mCommentStart, mCommentEnd, mSingleLineComment;
 		char mPreprocChar;
 		bool mAutoIndentation;
+		bool mMultiLineCommentPriority;
 
 		TokenizeCallback mTokenize;
 
@@ -170,7 +172,8 @@ public:
 		bool mCaseSensitive;
 
 		LanguageDefinition()
-			: mPreprocChar('#'), mAutoIndentation(true), mTokenize(nullptr), mCaseSensitive(true)
+			: mPreprocChar('#'), mAutoIndentation(true), mMultiLineCommentPriority(false), mTokenize(nullptr)
+			, mCaseSensitive(true)
 		{
 		}
 
@@ -256,6 +259,10 @@ public:
 	void SelectWordUnderCursor();
 	void SelectAll();
 	bool HasSelection() const;
+	std::pair<Coordinates, Coordinates> GetSelection();
+
+	std::optional<std::pair<Coordinates, Coordinates>> FindTextFrom(
+		const Coordinates& aPosition, const std::string_view& text);
 
 	void Copy();
 	void Cut();
